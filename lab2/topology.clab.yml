@@ -1,0 +1,45 @@
+name: lab2
+
+mgmt:
+  network: custom_clab_net
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    linux:
+      image: quay.io/frrouting/frr:10.5.1
+  nodes:
+    r1:
+      kind: linux
+      binds:
+        - r1/frr.conf:/etc/frr/frr.conf
+    r2:
+      kind: linux
+      binds:
+        - r2/frr.conf:/etc/frr/frr.conf
+    r3:
+      kind: linux
+      binds:
+        - r3/frr.conf:/etc/frr/frr.conf
+    r4:
+      kind: linux
+      binds:
+        - r4/frr.conf:/etc/frr/frr.conf
+    r5:
+      kind: linux
+      binds:
+        - r5/frr.conf:/etc/frr/frr.conf
+
+    r6:
+      kind: linux
+      binds:
+        - r6/frr.conf:/etc/frr/frr.conf
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"] # 10.0.12.0/24
+    - endpoints: ["r2:eth2", "r3:eth1"] # 10.0.23.0/24
+    - endpoints: ["r3:eth2", "r1:eth2"] # 10.0.13.0/24
+    - endpoints: ["r2:eth3", "r4:eth1"] # 10.0.24.0/24
+    - endpoints: ["r5:eth1", "r1:eth3"] # 10.0.15.0/24
+    - endpoints: ["r5:eth2", "r4:eth3"] # 10.0.45.0/24
+    - endpoints: ["r5:eth3", "r6:eth1"] # 10.0.56.0/24
