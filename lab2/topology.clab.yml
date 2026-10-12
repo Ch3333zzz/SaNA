@@ -11,6 +11,7 @@ topology:
   nodes:
     r1:
       kind: linux
+      network-mode: none
       binds:
         - r1/frr.conf:/etc/frr/frr.conf
     r2:

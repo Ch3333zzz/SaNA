@@ -376,3 +376,81 @@ traceroute to 10.0.1.2 (10.0.1.2) from 10.0.1.1, 30 hops max, 46 byte packets
  2  10.0.1.2 (10.0.1.2)  0.005 ms  0.007 ms  0.005 ms
 ```
 
+7) Настройка маршрутов по умолчанию
+
+Пример для r1, удаление старых маршрутов:
+
+```bash
+r1# configure               
+r1(config)# interface eth1
+r1(config-if)# no shutdown
+r1(config-if)# quit
+r1(config)# no ip route 10.0.1.2/32 10.0.12.2 eth1
+r1(config)# no ip route 10.0.1.2/32 10.0.13.1 100
+r1(config)# exit
+r1# sh ip ro
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF default:
+K>* 0.0.0.0/0 [0/0] via 172.30.30.1, eth0, weight 1, 00:17:33
+L * 10.0.1.1/32 is directly connected, lo, weight 1, 00:17:33
+C>* 10.0.1.1/32 is directly connected, lo, weight 1, 00:17:33
+S>* 10.0.1.3/32 [1/0] via 10.0.13.1, eth2, weight 1, 00:17:32
+S>* 10.0.1.5/32 [1/0] via 10.0.15.1, eth3, weight 1, 00:17:32
+C>* 10.0.13.0/24 is directly connected, eth2, weight 1, 00:17:33
+L>* 10.0.13.2/32 is directly connected, eth2, weight 1, 00:17:33
+C>* 10.0.15.0/24 is directly connected, eth3, weight 1, 00:17:33
+L>* 10.0.15.2/32 is directly connected, eth3, weight 1, 00:17:33
+C>* 172.30.30.0/24 is directly connected, eth0, weight 1, 00:17:33
+L * 172.30.30.7/32 is directly connected, eth0, weight 1, 00:17:33
+L>* 172.30.30.7/32 is directly connected, eth0, weight 1, 00:17:33
+```
+
+Назначение маршрута по умолчанию:
+```bash
+r1# configure
+r1(config)# ip route 0.0.0.0/0 10.0.12.2
+r1(config)# end
+r1# sh ip ro
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF default:
+S   0.0.0.0/0 [1/0] via 10.0.12.2 inactive, weight 1, 00:00:13
+K>* 0.0.0.0/0 [0/0] via 172.30.30.1, eth0, weight 1, 00:13:24
+L * 10.0.1.1/32 is directly connected, lo, weight 1, 00:13:24
+C>* 10.0.1.1/32 is directly connected, lo, weight 1, 00:13:24
+S>* 10.0.1.3/32 [1/0] via 10.0.13.1, eth2, weight 1, 00:13:23
+S>* 10.0.1.5/32 [1/0] via 10.0.15.1, eth3, weight 1, 00:13:23
+C>* 10.0.13.0/24 is directly connected, eth2, weight 1, 00:13:24
+L>* 10.0.13.2/32 is directly connected, eth2, weight 1, 00:13:24
+C>* 10.0.15.0/24 is directly connected, eth3, weight 1, 00:13:24
+L>* 10.0.15.2/32 is directly connected, eth3, weight 1, 00:13:24
+C>* 172.30.30.0/24 is directly connected, eth0, weight 1, 00:13:24
+L * 172.30.30.7/32 is directly connected, eth0, weight 1, 00:13:24
+L>* 172.30.30.7/32 is directly connected, eth0, weight 1, 00:13:24
+```
+
+Проверка связи между loopback r1 и r2:
+
+```bash
+r1:/# ping -c 4 -I 10.0.1.1 10.0.1.2
+PING 10.0.1.2 (10.0.1.2) from 10.0.1.1: 56 data bytes
+64 bytes from 10.0.1.2: seq=0 ttl=64 time=0.077 ms
+64 bytes from 10.0.1.2: seq=1 ttl=64 time=0.094 ms
+64 bytes from 10.0.1.2: seq=2 ttl=64 time=0.050 ms
+64 bytes from 10.0.1.2: seq=3 ttl=64 time=0.080 ms
+
+--- 10.0.1.2 ping statistics ---
+4 packets transmitted, 4 packets received, 0% packet loss
+round-trip min/avg/max = 0.050/0.075/0.094 ms
+```

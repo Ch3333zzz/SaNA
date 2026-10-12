@@ -1,0 +1,65 @@
+name: lab3
+
+mgmt:
+  network: custom_clab_net
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    linux:
+      image: quay.io/frrouting/frr:10.5.1
+  nodes:
+    s1:
+      kind: bridge
+    s2:
+      kind: bridge
+    s3:
+      kind: bridge
+    s4:
+      kind: bridge
+    s5:
+      kind: bridge
+    r6:
+      kind: linux
+      network-mode: none
+      binds:
+        - r6/frr.conf:/etc/frr/frr.conf
+    r7:
+      kind: linux
+      binds:
+        - r7/frr.conf:/etc/frr/frr.conf
+    r8:
+      kind: linux
+      binds:
+        - r8/frr.conf:/etc/frr/frr.conf
+    r9:
+      kind: linux
+      binds:
+        - r9/frr.conf:/etc/frr/frr.conf
+
+    r10:
+      kind: linux
+      binds:
+        - r10/frr.conf:/etc/frr/frr.conf
+    r11:
+      kind: linux
+      image: alpine:3.22
+      network-mode: none
+      exec:
+        - ip link set dev eth112 address a0:08:6f:e1:0c:46
+        - ip addr add 192.168.10.10/24 dev eth112
+        - ip link set dev eth112 up
+  links:
+    - endpoints: ["s1:eth12", "s2:eth21"]
+    - endpoints: ["s1:eth13", "s3:eth31"]
+    - endpoints: ["s1:eth14", "s4:eth41"]
+    - endpoints: ["s1:eth15", "s5:eth51"]
+    - endpoints: ["s5:eth54", "s4:eth45"]
+    - endpoints: ["s2:eth23", "s3:eth32"]
+    - endpoints: ["s2:eth26", "r6:eth62"]
+    - endpoints: ["s3:eth37", "r7:eth73"]
+    - endpoints: ["s1:eth18", "r8:eth81"]
+    - endpoints: ["s4:eth44", "s3:eth34"]
+    - endpoints: ["s4:eth49", "r9:eth94"]
+    - endpoints: ["s5:eth510", "r10:eth105"]
+    - endpoints: ["s2:eth210", "r11:eth112"]
