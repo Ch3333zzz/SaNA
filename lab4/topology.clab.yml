@@ -1,0 +1,33 @@
+name: lab4
+
+mgmt:
+  network: custom_clab_net
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    linux:
+      image: frr-telnet:10.5.1
+  nodes:
+    r1:
+      kind: linux
+      binds:
+        - r1/frr.conf:/etc/frr/frr.conf
+        - r1/daemons:/etc/frr/daemons
+    r2:
+      kind: linux
+      binds:
+        - r2/frr.conf:/etc/frr/frr.conf
+        - r2/daemons:/etc/frr/daemons
+    r3:
+      kind: linux
+      binds:
+        - r3/frr.conf:/etc/frr/frr.conf
+        - r3/daemons:/etc/frr/daemons
+    s1:
+      kind: bridge
+  links:
+    - endpoints: ["r1:eth1", "s1:p-r1"]
+    - endpoints: ["r2:eth1", "s1:p-r2a"]
+    - endpoints: ["r2:eth2", "s1:p-r2b"]
+    - endpoints: ["r3:eth1", "s1:p-r3"]

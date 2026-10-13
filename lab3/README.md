@@ -346,7 +346,7 @@ sudo bridge link show master s1
 146: eth14@eth41: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 master s1 state forwarding priority 32 cost 2 
 148: eth15@eth51: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 master s1 state forwarding priority 32 cost 2 
 158: eth18@if157: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9500 master s1 state forwarding priority 32 cost 2 
-[karel@CL4P-TP NetworkAdministration]$ sudo tc filter show dev eth210 ingress
+sudo tc filter show dev eth210 ingress
 filter protocol all pref 10 flower chain 0 
 filter protocol all pref 10 flower chain 0 handle 0x1 
   src_mac a0:08:6f:e1:0c:46
