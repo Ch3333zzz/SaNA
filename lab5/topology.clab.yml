@@ -1,0 +1,41 @@
+name: lab2
+
+mgmt:
+  network: custom_clab_net
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    linux:
+      image: lab2-frr-dhcp:latest
+  nodes:
+    r1:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r1/frr.conf:/etc/frr/frr.conf
+    r2:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r2/frr.conf:/etc/frr/frr.conf
+        - ./r2/dnsmasq-relay.conf:/etc/dnsmasq-relay.conf:ro
+    r3:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r3/frr.conf:/etc/frr/frr.conf
+    r4:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r4/frr.conf:/etc/frr/frr.conf
+        - ./r4/dnsmasq-server.conf:/etc/dnsmasq-server.conf:ro
+    s1:
+      kind: bridge
+  links:
+    - endpoints: ["r1:eth1", "s1:eth1"]
+    - endpoints: ["r2:eth1", "s1:eth2"]
+    - endpoints: ["r3:eth1", "s1:eth3"]
+    - endpoints: ["r4:eth1", "s1:eth4"]
+    - endpoints: ["r2:eth2", "s1:eth5"]
