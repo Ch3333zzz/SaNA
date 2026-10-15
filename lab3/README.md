@@ -1,38 +1,22 @@
-# ОТЧЁТ ПО ЛАБОРАТОРНОЙ РАБОТЕ № 2
-
-Министерство науки и высшего образования Российской Федерации
-федеральное государственное автономное образовательное учреждение высшего образования
-«Национальный исследовательский университет ИТМО»
-
-*Факультет программной инженерии и компьютерной техники*
-
-**По дисциплине:** Администрирование систем и сетей  
-**Тема:** «Создание взаимосвязанной IP-сети»  
-
-**Желаемая оценка:** 3
-
-**Выполнил:**  
-Студент гр. P3414  
-Козьяков А. Д.
-
-**Проверил:**
-Афанасьев Д.Б.
-
-Санкт-Петербург — 2026 г.
-
+---
+lab: 3
+topic: "Основы Ethernet и конфигурирование VLAN"
+grade: 3
+subject: "Администрирование систем и сетей"
+student: "Козьяков А.Д."
+teacher: "Афанасьев Д.Б."
+year: 2026
 ---
 
-## Оглавление
+#  Основы Ethernet и конфигурирование VLAN
 
----
+## Топология
 
-##  Основы Ethernet и конфигурирование VLAN
+![topology](./diagramm.png)
 
-### Топология
+## Выполение 
 
-### Выполение 
-
-0) Предварительная настройка
+### Предварительная настройка
 
 ```bash
 sudo ip link add s1 type bridge stp_state 1
@@ -54,7 +38,7 @@ sudo ip link set s5 up
 sudo containerlab deploy --topo lab3/topology.clab.yml
 ```
 
-1) Базовая настройка свичей
+### Настройка имен и отключение ненужных портов
 
 Поскольку мы сами создаем свичи, они уже названы правильно и не имеют лишних портов
 
@@ -94,7 +78,7 @@ en 1000
 sudo ip link set dev veth0 nomaster
 ```
 
-2) Настройка IP-адресов устройств
+### Настройка IP-адресов устройств
 
 Для r6, r7, r8:
 
@@ -124,7 +108,7 @@ sudo ip addr add 192.168.4.10/24 dev s4
 sudo ip addr add 192.168.5.10/24 dev s5
 ```
 
-3) Создание VLAN
+### Создание и настройка VLAN
 
 Разрешаем vlan фильтрацию:
 
@@ -170,22 +154,33 @@ sudo bridge vlan add dev eth41 vid 8
 sudo bridge vlan add dev eth18 vid 8 pvid untagged
 sudo bridge vlan add dev eth49 vid 8 pvid untagged
 ```
+Удаляем дефолтный vlan1:
+
+```bash
+for p in eth12 eth21 eth13 eth31 eth41 eth14 eth51 eth15 eth45 eth54 eth32 eth23 eth26 eth37 eth18 eth34 eth44 eth49 eth510 eth210; do
+    sudo bridge vlan del dev "$p" vid 1
+done
+```
 
 Проверка
 
 ```bash
 sudo bridge vlan show
-port              vlan-id  
 virbr0            1 PVID Egress Untagged
+br-5542d821a04f   1 PVID Egress Untagged
 docker0           1 PVID Egress Untagged
 br-ce16db5ca905   1 PVID Egress Untagged
 br-ef1a1aa7de6a   1 PVID Egress Untagged
-br-5542d821a04f   1 PVID Egress Untagged
+s1                1 PVID Egress Untagged
+s2                1 PVID Egress Untagged
+s3                1 PVID Egress Untagged
+s4                1 PVID Egress Untagged
+s5                1 PVID Egress Untagged
 br-10ffe971a450   1 PVID Egress Untagged
-veth55c1d00       1 PVID Egress Untagged
-veth7baba0e       1 PVID Egress Untagged
-vethc0f2e4d       1 PVID Egress Untagged
-vethdf9ee3c       1 PVID Egress Untagged
+vethf790e2a       1 PVID Egress Untagged
+vethc225e50       1 PVID Egress Untagged
+vethd128447       1 PVID Egress Untagged
+veth454ae64       1 PVID Egress Untagged
 eth21             6
 eth12             6
 eth31             6
@@ -225,7 +220,7 @@ PING 192.168.8.11 (192.168.8.11): 56 data bytes
 round-trip min/avg/max = 0.092/0.120/0.135 ms
 ```
 
-4) Конфигурация vlan на основе MAC-адресов
+### Конфигурация vlan на основе MAC-адресов
 
 Добавление новой vlan
 
@@ -278,16 +273,15 @@ filter protocol all pref 10 flower chain 0 handle 0x1
         backlog 0b 0p requeues 0
 ```
 
-5) Вывод информации о конфигурации
+### Вывод информации о конфигурации
 
 ```bash
-sudo bridge vlan show
 port              vlan-id  
 virbr0            1 PVID Egress Untagged
+br-5542d821a04f   1 PVID Egress Untagged
 docker0           1 PVID Egress Untagged
 br-ce16db5ca905   1 PVID Egress Untagged
 br-ef1a1aa7de6a   1 PVID Egress Untagged
-br-5542d821a04f   1 PVID Egress Untagged
 s1                1 PVID Egress Untagged
                   10
 s2                1 PVID Egress Untagged
@@ -295,48 +289,29 @@ s3                1 PVID Egress Untagged
 s4                1 PVID Egress Untagged
 s5                1 PVID Egress Untagged
 br-10ffe971a450   1 PVID Egress Untagged
-veth73217b2       1 PVID Egress Untagged
-veth1dc1aeb       1 PVID Egress Untagged
-veth82df9e9       1 PVID Egress Untagged
-veth9ece746       1 PVID Egress Untagged
-eth21             1 PVID Egress Untagged
-                  6
+vethf790e2a       1 PVID Egress Untagged
+vethc225e50       1 PVID Egress Untagged
+vethd128447       1 PVID Egress Untagged
+veth454ae64       1 PVID Egress Untagged
+eth21             6
                   10
-eth12             1 PVID Egress Untagged
-                  6
+eth12             6
                   10
-eth31             1 PVID Egress Untagged
-                  6
-eth13             1 PVID Egress Untagged
-                  6
-eth41             1 PVID Egress Untagged
-                  8
-eth14             1 PVID Egress Untagged
-                  8
-eth51             1 PVID Egress Untagged
-                  6
-eth15             1 PVID Egress Untagged
-                  6
-eth45             1 PVID Egress Untagged
-eth54             1 PVID Egress Untagged
-eth32             1 PVID Egress Untagged
-                  6
-eth23             1 PVID Egress Untagged
-                  6
-eth26             1 Egress Untagged
-                  6 PVID Egress Untagged
-eth37             1 Egress Untagged
-                  6 PVID Egress Untagged
-eth18             1 Egress Untagged
-                  8 PVID Egress Untagged
-eth34             1 PVID Egress Untagged
-eth44             1 PVID Egress Untagged
-eth49             1 Egress Untagged
-                  8 PVID Egress Untagged
-eth510            1 Egress Untagged
-                  6 PVID Egress Untagged
-eth210            1 PVID Egress Untagged
-                  10 Egress Untagged
+eth31             6
+eth13             6
+eth41             8
+eth14             8
+eth51             6
+eth15             6
+eth32             6
+eth23             6
+eth26             6 PVID Egress Untagged
+eth37             6 PVID Egress Untagged
+eth18             8 PVID Egress Untagged
+eth49             8 PVID Egress Untagged
+eth510            6 PVID Egress Untagged
+eth210            10 Egress Untagged
+
 ```
 
 ```bash
@@ -356,7 +331,7 @@ filter protocol all pref 10 flower chain 0 handle 0x1
 
 ```
 
-999) Очистка ОС от лабы
+### Очистка ОС от лабы
 
 ```bash
 sudo tc filter del dev eth210 ingress pref 10 2>/dev/null || true
@@ -365,8 +340,6 @@ sudo tc qdisc del dev eth210 clsact 2>/dev/null || true
 
 sudo ip link del dev s1.10 2>/dev/null || true
 
-sudo containerlab destroy --topo lab3/topology.clab.yml --cleanup
-
 for br in s1 s2 s3 s4 s5; do
     if ip link show dev "$br" >/dev/null 2>&1; then
         sudo ip link set dev "$br" down
@@ -374,3 +347,11 @@ for br in s1 s2 s3 s4 s5; do
     fi
 done
 ```
+
+## Полезные ссылки
+
+- [github репозиторий со всеми лабами](https://google.com)
+- [Container lab - используемая инфраструктура](https://containerlab.dev/)
+- [FRR - используемый роутер](https://frrouting.org/)
+
+

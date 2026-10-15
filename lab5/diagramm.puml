@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+
+skinparam DefaultFontName sans-serif
+skinparam NodeBackgroundColor #F8F9FA
+skinparam NodeBorderColor #333333
+skinparam RectangleBackgroundColor #E2E8F0
+skinparam RectangleBorderColor #4A5568
+
+rectangle "s1 (bridge)\nVLAN filtering: enabled\nVLAN 3, VLAN 4" as s1
+
+node "r1 (FRR + DHCP client)" as r1
+node "r2 (FRR + DHCP relay)" as r2
+node "r3 (FRR + DHCP client)" as r3
+node "r4 (FRR + DHCP server)" as r4
+
+r1 --- r1 : "eth1:\nDHCP lease: 10.0.12.111/24\nGateway: 10.0.12.2"
+
+r2 --- r2 : "eth1: 10.0.12.2/24\neth2: 10.0.23.2/24"
+
+r3 --- r3 : "eth1:\nDHCP lease: 10.0.23.101/24\nGateway: 10.0.23.2"
+
+r4 --- r4 : "eth1: 10.0.23.1/24\nDHCP pool VLAN 3:\n10.0.12.100-10.0.12.200\nDHCP pool VLAN 4:\n10.0.23.100-10.0.23.200"
+
+s1 --- r1 : "p-r1 (eth1) --- eth1\nVLAN 3 — access / untagged"
+s1 --- r2 : "p-r2a (eth2) --- eth1\nVLAN 3 — access / untagged"
+s1 --- r3 : "p-r3 (eth3) --- eth1\nVLAN 4 — access / untagged"
+s1 --- r4 : "p-r4 (eth4) --- eth1\nVLAN 4 — access / untagged"
+s1 --- r2 : "p-r2b (eth5) --- eth2\nVLAN 4 — access / untagged"
+
+@enduml

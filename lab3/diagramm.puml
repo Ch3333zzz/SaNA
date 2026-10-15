@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+
+skinparam DefaultFontName sans-serif
+skinparam NodeBackgroundColor #F8F9FA
+skinparam NodeBorderColor #333333
+skinparam RectangleBackgroundColor #E2E8F0
+skinparam RectangleBorderColor #4A5568
+
+rectangle "s1 (bridge)\n192.168.1.10/24" as s1
+rectangle "s2 (bridge)\n192.168.2.10/24" as s2
+rectangle "s3 (bridge)\n192.168.3.10/24" as s3
+rectangle "s4 (bridge)\n192.168.4.10/24" as s4
+rectangle "s5 (bridge)\n192.168.5.10/24" as s5
+
+node "r6 (FRR)" as r6
+node "r7 (FRR)" as r7
+node "r8 (FRR)" as r8
+node "r9 (FRR)" as r9
+node "r10 (FRR)" as r10
+node "r11 (Alpine)" as r11
+
+r6 --- r6 : "lo: 10.0.1.6/32"
+r7 --- r7 : "lo: 10.0.1.7/32"
+r8 --- r8 : "lo: 10.0.1.8/32"
+r9 --- r9 : "lo: 10.0.1.9/32"
+r10 --- r10 : "lo: 10.0.1.10/32"
+
+s1 --- s2 : "eth12 <-> eth21\nVLAN 6, 10 — tagged"
+s1 --- s3 : "eth13 <-> eth31\nVLAN 6 — tagged"
+s1 --- s4 : "eth14 <-> eth41\nVLAN 8 — tagged"
+s1 --- s5 : "eth15 <-> eth51\nVLAN 6 — tagged"
+s2 --- s3 : "eth23 <-> eth32\nVLAN 6 — tagged"
+
+s4 --- s3 : "eth44 <-> eth34"
+s5 --- s4 : "eth54 <-> eth45"
+
+s2 --- r6 : "eth26 <-> eth62\nVLAN 6 — access / untagged\n192.168.6.10/24"
+s3 --- r7 : "eth37 <-> eth73\nVLAN 6 — access / untagged\n192.168.6.11/24"
+s1 --- r8 : "eth18 <-> eth81\nVLAN 8 — access / untagged\n192.168.8.10/24"
+s4 --- r9 : "eth49 <-> eth94\nVLAN 8 — access / untagged\n192.168.8.11/24"
+s5 --- r10 : "eth510 <-> eth105\nVLAN 6 — access / untagged\n192.168.6.12/24"
+s2 --- r11 : "eth210 <-> eth112\nVLAN 10 — access / untagged\n192.168.10.10/24"
+
+@enduml

@@ -1,38 +1,22 @@
-# ОТЧЁТ ПО ЛАБОРАТОРНОЙ РАБОТЕ № 2
-
-Министерство науки и высшего образования Российской Федерации
-федеральное государственное автономное образовательное учреждение высшего образования
-«Национальный исследовательский университет ИТМО»
-
-*Факультет программной инженерии и компьютерной техники*
-
-**По дисциплине:** Администрирование систем и сетей  
-**Тема:** «Создание взаимосвязанной IP-сети»  
-
-**Желаемая оценка:** 3
-
-**Выполнил:**  
-Студент гр. P3414  
-Козьяков А. Д.
-
-**Проверил:**
-Афанасьев Д.Б.
-
-Санкт-Петербург — 2026 г.
-
+---
+lab: 2
+topic: "Создание взаимосвязанной IP-сети"
+grade: 3
+subject: "Администрирование систем и сетей"
+student: "Козьяков А.Д."
+teacher: "Афанасьев Д.Б."
+year: 2026
 ---
 
-## Оглавление
+# Адресация и маршрутизация IPv4
 
----
+## Топология
 
-## Адресация и маршрутизация IPv4
+![topology](./diagramm.png)
 
-### Топология
+## Выполение 
 
-### Выполение 
-
-0) Поднятие сети и подключение к конкретному оборудованию
+### Поднятие сети и подключение к конкретному оборудованию
 
 ```bash
 sudo containerlab deploy --topo *файл с топологией*
@@ -42,7 +26,7 @@ sudo containerlab deploy --topo *файл с топологией*
 docker exec -it [название контейнера] vtysh
 ```
 
-1) Имя хоста можно изменить с помощью команды
+### Изменение имени хоста
 
 ```bash
 hostname HOSTNAME
@@ -56,7 +40,7 @@ r1(config)# hostname SOMEONE
 SOMEONE(config)# exit
 ```
 
-2) IP-адрес текущего интерфейса и таблица маршрутизации
+### IP-адрес текущего интерфейса и таблица маршрутизации
 
 ```bash
 r1# show interface brief 
@@ -85,7 +69,7 @@ C>* 172.30.30.0/24 is directly connected, eth0, weight 1, 00:27:35
 L>* 172.30.30.3/32 is directly connected, eth0, weight 1, 00:27:35
 
 ```
-3) Настройка IP-адреса физических интерфейсов
+### Настройка IP-адреса физических интерфейсов
 
 Поскольку в frr можно указывать ip адреса в конфигурационном файле, а ip адреса назначаются аналогично, то для удобства буду настраивать их там, но вот пример настройки вручную:
 
@@ -150,7 +134,7 @@ L * 172.30.30.6/32 is directly connected, eth0, weight 1, 00:08:13
 L>* 172.30.30.6/32 is directly connected, eth0, weight 1, 00:08:14
 ```
 
-4) Создание loopback интерфейса
+### Создание loopback интерфейса
 
 ```bash
 r1# configure   
@@ -182,7 +166,7 @@ PING 10.0.1.2 (10.0.1.2) from 10.0.1.1: 56 data bytes
 4 packets transmitted, 0 packets received, 100% packet loss
 ```
 
-5) Настройка статических маршрутов
+### Настройка статических маршрутов
 
 ```bash
 r1# configure 
@@ -260,7 +244,7 @@ PING 10.0.1.5 (10.0.1.5) from 10.0.1.4: 56 data bytes
 64 bytes from 10.0.1.5: seq=3 ttl=64 time=0.114 ms
 ```
 
-Добавление резервного маршрута:
+### Добавление резервного маршрута:
 
 ```bash
 r1(config)# ip route 10.0.1.2/32 10.0.13.3 100
@@ -296,6 +280,39 @@ L * 172.30.30.4/32 is directly connected, eth0, weight 1, 00:00:13
 L>* 172.30.30.4/32 is directly connected, eth0, weight 1, 00:00:14
 ```
 
+Аналогично для r2:
+
+```bash
+r2(config)# ip route 10.0.1.1/32 10.0.23.2 100
+```
+
+```bash
+r2# show ip ro
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF default:
+K>* 0.0.0.0/0 [0/0] via 172.30.30.1, eth0, weight 1, 00:00:58
+S>* 10.0.1.1/32 [1/0] via 10.0.12.1, eth1, weight 1, 00:00:58
+S   10.0.1.1/32 [100/0] via 10.0.23.2, eth2, weight 1, 00:00:58
+L * 10.0.1.2/32 is directly connected, lo, weight 1, 00:00:58
+C>* 10.0.1.2/32 is directly connected, lo, weight 1, 00:00:58
+S>* 10.0.1.3/32 [1/0] via 10.0.23.2, eth2, weight 1, 00:00:58
+S>* 10.0.1.4/32 [1/0] via 10.0.24.2, eth3, weight 1, 00:00:58
+C>* 10.0.12.0/24 is directly connected, eth1, weight 1, 00:00:58
+L>* 10.0.12.2/32 is directly connected, eth1, weight 1, 00:00:58
+C>* 10.0.23.0/24 is directly connected, eth2, weight 1, 00:00:58
+L>* 10.0.23.1/32 is directly connected, eth2, weight 1, 00:00:58
+C>* 10.0.24.0/24 is directly connected, eth3, weight 1, 00:00:58
+L>* 10.0.24.1/32 is directly connected, eth3, weight 1, 00:00:58
+C>* 172.30.30.0/24 is directly connected, eth0, weight 1, 00:00:58
+L * 172.30.30.2/32 is directly connected, eth0, weight 1, 00:00:58
+L>* 172.30.30.2/32 is directly connected, eth0, weight 1, 00:00:58
+```
 Таблица маршрутизации после выключения интерфейса, r1:
 
 ```bash
@@ -376,7 +393,7 @@ traceroute to 10.0.1.2 (10.0.1.2) from 10.0.1.1, 30 hops max, 46 byte packets
  2  10.0.1.2 (10.0.1.2)  0.005 ms  0.007 ms  0.005 ms
 ```
 
-7) Настройка маршрутов по умолчанию
+### Настройка маршрутов по умолчанию
 
 Пример для r1, удаление старых маршрутов:
 
@@ -454,3 +471,11 @@ PING 10.0.1.2 (10.0.1.2) from 10.0.1.1: 56 data bytes
 4 packets transmitted, 4 packets received, 0% packet loss
 round-trip min/avg/max = 0.050/0.075/0.094 ms
 ```
+
+## Полезные ссылки
+
+- [github репозиторий со всеми лабами](https://google.com)
+- [Container lab - используемая инфраструктура](https://containerlab.dev/)
+- [FRR - используемый роутер](https://frrouting.org/)
+
+

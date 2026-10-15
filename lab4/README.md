@@ -1,47 +1,35 @@
-# ОТЧЁТ ПО ЛАБОРАТОРНОЙ РАБОТЕ № 2
-
-Министерство науки и высшего образования Российской Федерации
-федеральное государственное автономное образовательное учреждение высшего образования
-«Национальный исследовательский университет ИТМО»
-
-*Факультет программной инженерии и компьютерной техники*
-
-**По дисциплине:** Администрирование систем и сетей  
-**Тема:** «Создание взаимосвязанной IP-сети»  
-
-**Желаемая оценка:** 3
-
-**Выполнил:**  
-Студент гр. P3414  
-Козьяков А. Д.
-
-**Проверил:**
-Афанасьев Д.Б.
-
-Санкт-Петербург — 2026 г.
-
+---
+lab: 3
+topic: "Настройка ACL"
+grade: 3
+subject: "Администрирование систем и сетей"
+student: "Козьяков А.Д."
+teacher: "Афанасьев Д.Б."
+year: 2026
 ---
 
-## Оглавление
+#  Основы Ethernet и конфигурирование VLAN
 
----
+## Топология
 
-##  Основы Ethernet и конфигурирование VLAN
+![topology](./diagramm.png)
 
-### Топология
+## Выполение 
 
-### Выполение 
-
-0) Предварительная настройка
+### Предварительная настройка
 
 Поднятие моста:
 
 ```bash
-sudo ip link add s1 type bridge
+sudo ip link add s1 type bridge vlan_filtering 1
 
 sudo ip link set s1 up
+```
 
-sudo ip link set dev s1 type bridge vlan_filtering 1
+Создание образа:
+
+```bash
+docker build --network=host -t frr-telnet:10.5.1 ./lab4/frr-telnet
 ```
 
 Настройка топологии:
@@ -90,13 +78,7 @@ p-r2a             10 PVID Egress Untagged
 p-r2b             20 PVID Egress Untagged
 p-r3              20 PVID Egress Untagged
 ```
-Создание образа:
-
-```bash
-docker build --network=host -t frr-telnet:10.5.1 ./lab4/frr-telnet
-```
-
-1) Назначение ip адресов и ospf
+### Назначение ip адресов и ospf
 
 ```bash
 r1# co
@@ -130,7 +112,7 @@ Neighbor ID     Pri State           Up Time         Dead Time Address         In
 
 ```
 
-2) Создание telnet сервера на r3
+### Создание telnet сервера на r3
 
 Поскольку FRR не имеет telnet, необходимо его установить. Чтобы каждый раз не устанавливать telnet я собрал образ, содержащий frr и telnet
 
@@ -149,7 +131,7 @@ passwd: password for student changed by root
 Узнаем ip адрес r3:
 
 ```bash
-[karel@CL4P-TP NetworkAdministration]$ docker inspect clab-lab4-r3 | grep "IPAddress"
+docker inspect clab-lab4-r3 | grep "IPAddress"
                     "IPAddress": "172.30.30.4",
 ```
 
@@ -195,7 +177,7 @@ lo              up      default         10.0.1.3/32
 r3# 
 ```
 
-3) Настройка ACL на основе необходимого трафика
+### Настройка ACL на основе необходимого трафика
 
 Можно сделать двумя способами, через iptables или через FRR. Продемонстрирую два подхода
 
@@ -209,7 +191,7 @@ iptables -A INPUT -p tcp --dport 23 -j DROP
 проверка:
 
 ```bash
-[karel@CL4P-TP NetworkAdministration]$ docker exec clab-lab4-r1 nc -zvw3 -s 10.1.4.1 10.1.3.1 23
+docker exec clab-lab4-r1 nc -zvw3 -s 10.1.4.1 10.1.3.1 23
 docker exec clab-lab4-r1 nc -zvw3 -s 10.1.1.1 10.1.3.1 23
 10.1.3.1 (10.1.3.1:23) open
 nc: 10.1.3.1 (10.1.3.1:23): Operation timed out
@@ -272,9 +254,12 @@ User Access Verification
 ������"��Password: LabVTY123
 
 r3> ^Cpunt!
-[karel@CL4P-TP NetworkAdministration]$ docker exec -it clab-lab4-r1 nc -v -w 5 -s 10.1.1.1 10.1.3.1 2601
+```
+
+```bash
+docker exec -it clab-lab4-r1 nc -v -w 5 -s 10.1.1.1 10.1.3.1 2601
 10.1.3.1 (10.1.3.1:2601) open
-[karel@CL4P-TP NetworkAdministration]$ docker exec -it clab-lab4-r1 nc -v -s 10.1.1.1 10.1.3.1 2601
+docker exec -it clab-lab4-r1 nc -v -s 10.1.1.1 10.1.3.1 2601
 10.1.3.1 (10.1.3.1:2601) open
 ^Cpunt!
 
@@ -284,21 +269,17 @@ r3> ^Cpunt!
 
 
 
-999) Очистка ОС от лабы
+### Очистка ОС от лабы
 
 ```bash
-sudo tc filter del dev eth210 ingress pref 10 2>/dev/null || true
-
-sudo tc qdisc del dev eth210 clsact 2>/dev/null || true
-
-sudo ip link del dev s1.10 2>/dev/null || true
-
-sudo containerlab destroy --topo lab3/topology.clab.yml --cleanup
-
-for br in s1 s2 s3 s4 s5; do
-    if ip link show dev "$br" >/dev/null 2>&1; then
-        sudo ip link set dev "$br" down
-        sudo ip link del dev "$br"
-    fi
-done
+sudo ip link set dev s1 down
+sudo ip link del dev s1 type bridge
 ```
+
+
+## Полезные ссылки
+
+- [github репозиторий со всеми лабами](https://google.com)
+- [Container lab - используемая инфраструктура](https://containerlab.dev/)
+- [FRR - используемый роутер](https://frrouting.org/)
+

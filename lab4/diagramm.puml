@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+skinparam DefaultFontName sans-serif
+skinparam NodeBackgroundColor #F8F9FA
+skinparam NodeBorderColor #333333
+skinparam RectangleBackgroundColor #E2E8F0
+skinparam RectangleBorderColor #4A5568
+
+rectangle "s1 (bridge)\nVLAN filtering: enabled" as s1
+
+node "r1 (FRR)" as r1
+node "r2 (FRR)" as r2
+node "r3 (FRR + Telnet)" as r3
+
+r1 --- r1 : "lo:\n10.0.1.1/32\n10.1.1.1/32\n10.1.4.1/32"
+r2 --- r2 : "lo: 10.0.1.2/32"
+r3 --- r3 : "lo: 10.0.1.3/32\nACL LAB:\npermit 10.1.4.1/32\ndeny any"
+
+s1 --- r1 : "p-r1 --- eth1\nVLAN 10 — access / untagged\n10.1.2.1/24"
+s1 --- r2 : "p-r2a --- eth1\nVLAN 10 — access / untagged\n10.1.2.2/24"
+s1 --- r2 : "p-r2b --- eth2\nVLAN 20 — access / untagged\n10.1.3.2/24"
+s1 --- r3 : "p-r3 --- eth1\nVLAN 20 — access / untagged\n10.1.3.1/24"
+
+r1 -[#2563EB,dashed]- r2 : "OSPF area 0"
+r2 -[#2563EB,dashed]- r3 : "OSPF area 0"
+
+@enduml
