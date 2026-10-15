@@ -279,7 +279,7 @@ sudo ip link del dev s1 type bridge
 
 ## Полезные ссылки
 
-- [github репозиторий со всеми лабами](https://google.com)
+- [github репозиторий со всеми лабами](https://github.com/Ch3333zzz/SaNA)
 - [Container lab - используемая инфраструктура](https://containerlab.dev/)
 - [FRR - используемый роутер](https://frrouting.org/)
 

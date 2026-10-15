@@ -151,7 +151,7 @@ round-trip min/avg/max = 0.087/0.104/0.123 ms
 
 ## Полезные ссылки
 
-- [github репозиторий со всеми лабами](https://google.com)
+- [github репозиторий со всеми лабами](https://github.com/Ch3333zzz/SaNA)
 - [Container lab - используемая инфраструктура](https://containerlab.dev/)
 - [FRR - используемый роутер](https://frrouting.org/)
 

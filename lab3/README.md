@@ -350,7 +350,7 @@ done
 
 ## Полезные ссылки
 
-- [github репозиторий со всеми лабами](https://google.com)
+- [github репозиторий со всеми лабами](https://github.com/Ch3333zzz/SaNA)
 - [Container lab - используемая инфраструктура](https://containerlab.dev/)
 - [FRR - используемый роутер](https://frrouting.org/)
 
