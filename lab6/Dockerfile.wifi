@@ -1,0 +1,14 @@
+FROM debian:trixie-slim
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        hostapd \
+        wpasupplicant \
+        iw \
+        iproute2 \
+        iputils-ping \
+        bridge-utils \
+        busybox && \
+    rm -rf /var/lib/apt/lists/*
+
+CMD ["sleep", "infinity"]

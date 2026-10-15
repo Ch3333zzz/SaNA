@@ -1,0 +1,98 @@
+name: lab6
+
+mgmt:
+  network: custom_clab_net
+  ipv4-subnet: 172.30.30.0/24
+
+topology:
+  kinds:
+    linux:
+      image: lab6-frr-dhcp:latest
+  nodes:
+    r1:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r1/frr.conf:/etc/frr/frr.conf
+        - ./r1/dnsmasq-server.conf:/etc/dnsmasq-server.conf:ro
+    r2:
+      kind: linux
+      network-mode: none
+      binds:
+        - ./r2/frr.conf:/etc/frr/frr.conf
+        - ./r2/dnsmasq-relay.conf:/etc/dnsmasq-relay.conf:ro
+    s1:
+      kind: bridge
+    s2:
+      kind: bridge
+    s3:
+      kind: bridge
+    ap1:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./ap1/hostapd.conf:/etc/hostapd/hostapd.conf:ro
+
+    ap2:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./ap2/hostapd.conf:/etc/hostapd/hostapd.conf:ro
+
+    ap3:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./ap3/hostapd.conf:/etc/hostapd/hostapd.conf:ro
+
+    ap4:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./ap4/hostapd.conf:/etc/hostapd/hostapd.conf:ro
+
+    sta1:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./sta1/wpa_supplicant.conf:/etc/wpa_supplicant/wpa_supplicant.conf:ro
+        - ./udhcpc-script:/usr/local/sbin/udhcpc-script:ro
+
+    sta2:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./sta2/wpa_supplicant.conf:/etc/wpa_supplicant/wpa_supplicant.conf:ro
+        - ./udhcpc-script:/usr/local/sbin/udhcpc-script:ro
+
+    sta3:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./sta3/wpa_supplicant.conf:/etc/wpa_supplicant/wpa_supplicant.conf:ro
+        - ./udhcpc-script:/usr/local/sbin/udhcpc-script:ro
+
+    sta4:
+      kind: linux
+      image: lab6-wifi:latest
+      network-mode: none
+      binds:
+        - ./sta4/wpa_supplicant.conf:/etc/wpa_supplicant/wpa_supplicant.conf:ro
+        - ./udhcpc-script:/usr/local/sbin/udhcpc-script:ro
+  links:
+    - endpoints: ["r1:eth1", "s1:ac-port"]
+    - endpoints: ["r2:eth1", "s1:r2-v3"]
+    - endpoints: ["s2:s2-uplink", "s1:s1-to-s2"]
+    - endpoints: ["s3:s3-uplink", "s1:s1-to-s3"]
+    - endpoints: ["r2:eth2", "s1:r2-v4"]
+    - endpoints: ["ap1:eth1", "s2:ap1-port"]
+    - endpoints: ["ap2:eth1", "s2:ap2-port"]
+    - endpoints: ["ap3:eth1", "s3:ap3-port"]
+    - endpoints: ["ap4:eth1", "s3:ap4-port"]

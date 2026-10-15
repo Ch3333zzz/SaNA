@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$1" in
+    deconfig)
+        ip addr flush dev "$interface"
+        ;;
+
+    bound|renew)
+        ip addr replace "$ip/24" dev "$interface"
+
+        if [ -n "$router" ]; then
+            gateway=${router%% *}
+            ip route replace default via "$gateway" dev "$interface"
+        fi
+        ;;
+esac

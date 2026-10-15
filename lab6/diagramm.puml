@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+
+skinparam DefaultFontName sans-serif
+skinparam NodeBackgroundColor #F8F9FA
+skinparam NodeBorderColor #333333
+skinparam RectangleBackgroundColor #E2E8F0
+skinparam RectangleBorderColor #4A5568
+
+rectangle "s1 (bridge)\nVLAN filtering: enabled\nVLAN 3, VLAN 4" as s1
+
+rectangle "s2 (bridge)\nAccess switch\nTrunk VLAN 3, VLAN 4" as s2
+rectangle "s3 (bridge)\nAccess switch\nTrunk VLAN 3, VLAN 4" as s3
+
+node "r1 (FRR + dnsmasq DHCP server)" as r1
+node "r2 (FRR + dnsmasq DHCP relay)\nIPv4 forwarding: disabled\nfor VLAN isolation test" as r2
+
+node "ap1 (hostapd)\nSSID: LAB6-TEST\nVLAN 3\nwlan0 / br3 / eth1.3" as ap1
+node "ap2 (hostapd)\nSSID: LAB6-VLAN4-A\nVLAN 4\nwlan1 / br4 / eth1.4" as ap2
+node "ap3 (hostapd)\nSSID: LAB6-VLAN3-B\nVLAN 3\nwlan2 / br3 / eth1.3" as ap3
+node "ap4 (hostapd)\nSSID: LAB6-VLAN4-B\nVLAN 4\nwlan3 / br4 / eth1.4" as ap4
+
+node "sta1 (Wi-Fi client)\nVLAN 3\n10.0.12.180/24\nGateway: 10.0.12.2" as sta1
+node "sta2 (Wi-Fi client)\nVLAN 4\n10.0.23.190/24\nGateway: 10.0.23.2" as sta2
+node "sta3 (Wi-Fi client)\nVLAN 3\n10.0.12.109/24\nGateway: 10.0.12.2" as sta3
+node "sta4 (Wi-Fi client)\nVLAN 4\n10.0.23.168/24\nGateway: 10.0.23.2" as sta4
+
+r1 --- r1 : "eth1: 10.0.23.1/24\nVLAN 4 access / untagged\nDHCP pool VLAN 3:\n10.0.12.100-10.0.12.200\nDHCP pool VLAN 4:\n10.0.23.100-10.0.23.200"
+
+r2 --- r2 : "eth1: 10.0.12.2/24\nGateway VLAN 3\neth2: 10.0.23.2/24\nGateway VLAN 4\nDHCP relay → 10.0.23.1"
+
+s1 --- r1 : "ac-port ↔ eth1\nVLAN 4 — access / untagged"
+s1 --- r2 : "r2-v3 ↔ eth1\nVLAN 3 — access / untagged"
+s1 --- r2 : "r2-v4 ↔ eth2\nVLAN 4 — access / untagged"
+
+s1 --- s2 : "s1-to-s2 ↔ s2-uplink\nTrunk: VLAN 3, VLAN 4"
+s1 --- s3 : "s1-to-s3 ↔ s3-uplink\nTrunk: VLAN 3, VLAN 4"
+
+s2 --- ap1 : "ap1-port ↔ eth1\nTrunk VLAN 3, VLAN 4\nAP bridges Wi-Fi into VLAN 3"
+s2 --- ap2 : "ap2-port ↔ eth1\nTrunk VLAN 3, VLAN 4\nAP bridges Wi-Fi into VLAN 4"
+
+s3 --- ap3 : "ap3-port ↔ eth1\nTrunk VLAN 3, VLAN 4\nAP bridges Wi-Fi into VLAN 3"
+s3 --- ap4 : "ap4-port ↔ eth1\nTrunk VLAN 3, VLAN 4\nAP bridges Wi-Fi into VLAN 4"
+
+ap1 .. sta1 : "Wi-Fi / WPA2"
+ap2 .. sta2 : "Wi-Fi / WPA2"
+ap3 .. sta3 : "Wi-Fi / WPA2"
+ap4 .. sta4 : "Wi-Fi / WPA2"
+
+@enduml
